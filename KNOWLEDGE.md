@@ -110,6 +110,7 @@ Current state: `git init` done in `/arche-agent` (branch `main`, no commits yet)
 - 2026-09-15: `AGENTS.md` merged into single file: Arche behavioral guidelines + Pi dev rules + Execution Policy + SSOT.
 - 2026-09-15: Decided task lists + subagents built-in (not extensions). UI will show Arche banner, then modified incrementally as features land. Focus on core agent now.
 - 2026-09-15: Git strategy: keep docs-only repo, vendor Pi code locally; no Pi history import.
+- 2026-09-15: Pi base code now committed to GitHub repo Nyvo2010/arche-agent. Full monorepo uploaded.
 - 2026-09-15: Model router config format: use whatever Pi currently uses for user config to keep cohesive feel.
 - 2026-09-15: Task tracking: use JSONL child nodes for sub-agents (native session tree) — recommended as best practice.
 - 2026-09-15: Note — repo root now contains Pi dev rules. Arche edits must follow them (no `any`, erasable TS, `npm run check`, etc.).
