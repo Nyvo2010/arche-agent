@@ -108,7 +108,10 @@ Current state: `git init` done in `/arche-agent` (branch `main`, no commits yet)
 - 2026-09-15: Pi code moved to repo root (merged from `Nyvo2010/pi`). Submodule removed. `QUICK-SPECS.md` removed; all knowledge consolidated in this doc.
 - 2026-09-15: LICENSE updated to Arche Agent (MIT, acknowledges Pi).
 - 2026-09-15: `AGENTS.md` merged into single file: Arche behavioral guidelines + Pi dev rules + Execution Policy + SSOT.
-- 2026-09-15: Decided task lists + subagents built-in (not extensions). UI unchanged for now; use Pi TUI with minimal tweaks for testing. Focus on core agent.
+- 2026-09-15: Decided task lists + subagents built-in (not extensions). UI will show Arche banner, then modified incrementally as features land. Focus on core agent now.
+- 2026-09-15: Git strategy: keep docs-only repo, vendor Pi code locally; no Pi history import.
+- 2026-09-15: Model router config format: use whatever Pi currently uses for user config to keep cohesive feel.
+- 2026-09-15: Task tracking: use JSONL child nodes for sub-agents (native session tree) — recommended as best practice.
 - 2026-09-15: Note — repo root now contains Pi dev rules. Arche edits must follow them (no `any`, erasable TS, `npm run check`, etc.).
 
 ## 8. Glossary / Files
