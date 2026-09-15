@@ -134,7 +134,7 @@ In addition to the tools above, you may have access to other custom tools depend
 Guidelines:
 ${guidelines}
 
-Pi documentation (read only when the user asks about pi itself, its SDK, extensions, themes, skills, or TUI):
+Arche Agent documentation (based on Pi) (read only when the user asks about Arche Agent itself, its SDK, extensions, themes, skills, or TUI):
 - Main documentation: ${readmePath}
 - Additional docs: ${docsPath}
 - Examples: ${examplesPath} (extensions, custom tools, SDK)

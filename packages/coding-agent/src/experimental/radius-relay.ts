@@ -127,7 +127,7 @@ export class RadiusRelayHost {
 		this.#closed = true;
 		this.#abortController.abort();
 		this.#writer?.close();
-		this.#socket?.close(1000, "Pi server stopped");
+		this.#socket?.close(1000, "Arche Agent server stopped");
 		this.#dropConnections();
 		await this.#loop;
 	}
