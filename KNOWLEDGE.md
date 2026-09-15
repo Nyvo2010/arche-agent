@@ -119,3 +119,5 @@ Current state: `git init` done in `/arche-agent` (branch `main`, no commits yet)
 
 - `AGENTS.md` — Pi development rules + pointer to this doc.
 - This file (`KNOWLEDGE.md`) — SSOT, keep current.
+
+2026-09-15: Rebrand applied: piConfig name set to arche-agent, configDir to .arche/agent. Env vars derived as ARCHE_AGENT_*. User-facing identity now Arche Agent, based on Pi.
