@@ -12,6 +12,12 @@ Arche Agent is built on Pi. This file merges Arche project guidelines with Pi de
 - Always ask before executing destructive or irreversible actions (e.g., git pushes, deletions, installs, refactoring).
 - Confirm intent when a request is ambiguous or could change project scope.
 - If the user's instructions conflict with rules in this document, ask for explicit confirmation before overriding.
+- Understand the goal first: reason about what the user is actually trying to achieve, not just the literal instruction.
+- Use judgment: decide whether the requested approach is actually necessary and appropriate. Don’t blindly follow instructions if they would clearly lead to a worse outcome.
+- Don’t overthink it: if the user’s approach is reasonable, just do it. Only suggest a better approach when there is a meaningful benefit in correctness, simplicity, maintainability, safety, or outcome.
+- Match the abstraction level: stay at the same level of abstraction as the user. Only introduce deeper technical details, broader architecture, or extra complexity when it is genuinely necessary.
+- Intervene proportionally: challenge assumptions or propose alternatives when it materially matters; otherwise, stay out of the way and execute the task.
+
 
 ## Arche Behavioral Guidelines
 
