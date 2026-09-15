@@ -106,7 +106,10 @@ Current state: `git init` done in `/arche-agent` (branch `main`, no commits yet)
 - 2026-09-15: Discovered Pi already ships `packages/server`, `packages/protocol`, `packages/client`, `event-bus.ts`, `session-backends/sqlite-node`. Plan builds on those (see §4).
 - 2026-09-15 (D2 user answers round 2): Router tiers user-configurable via config; approval-gate permissions; minimal MCP (generic client) + TS LSP first; TUI-first new interface; task lists + subagents built-in.
 - 2026-09-15: Pi code moved to repo root (merged from `Nyvo2010/pi`). Submodule removed. `QUICK-SPECS.md` removed; all knowledge consolidated in this doc.
-- 2026-09-15: Note — repo root now contains Pi AGENTS.md dev rules. Arche edits must follow them (no `any`, erasable TS, `npm run check`, etc.).
+- 2026-09-15: LICENSE updated to Arche Agent (MIT, acknowledges Pi).
+- 2026-09-15: `AGENTS.md` merged into single file: Arche behavioral guidelines + Pi dev rules + Execution Policy + SSOT.
+- 2026-09-15: Decided task lists + subagents built-in (not extensions). UI unchanged for now; use Pi TUI with minimal tweaks for testing. Focus on core agent.
+- 2026-09-15: Note — repo root now contains Pi dev rules. Arche edits must follow them (no `any`, erasable TS, `npm run check`, etc.).
 
 ## 8. Glossary / Files
 
