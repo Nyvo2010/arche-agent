@@ -64,6 +64,14 @@ export interface ImageSettings {
 	blockImages?: boolean; // default: false - when true, prevents all images from being sent to LLM providers
 }
 
+export interface ContextSettings {
+	maxBudgetTokens?: number; // Absolute per-request token budget for COE (default: unset = 70% of model window)
+	sceMaxFiles?: number; // Max files in the SCE workspace slice (default: 6)
+	sceBudgetTokens?: number; // Shared token budget for the SCE slice (default: 2000)
+	sceImportantFiles?: string[]; // Extra entry files for the SCE fallback path
+	enableSemantic?: boolean; // SCE trigram-similarity ranking instead of term BM25 (default: false)
+}
+
 export interface ThinkingBudgetsSettings {
 	minimal?: number;
 	low?: number;
@@ -136,6 +144,7 @@ export interface Settings {
 	enableSkillCommands?: boolean; // default: true - register skills as /skill:name commands
 	terminal?: TerminalSettings;
 	images?: ImageSettings;
+	context?: ContextSettings;
 	enabledModels?: string[]; // Model patterns for cycling (same format as --models CLI flag)
 	defaultTools?: string[]; // Initial built-in tool selection
 	doubleEscapeAction?: "fork" | "tree" | "none"; // Action for double-escape with empty editor (default: "tree")
@@ -1220,7 +1229,7 @@ export class SettingsManager {
 		if (this.settings.terminal?.clearOnShrink !== undefined) {
 			return this.settings.terminal.clearOnShrink;
 		}
-		return process.env.PI_CLEAR_ON_SHRINK === "1";
+		return process.env.ARCHE_CLEAR_ON_SHRINK === "1";
 	}
 
 	setClearOnShrink(enabled: boolean): void {
@@ -1312,6 +1321,35 @@ export class SettingsManager {
 		this.save();
 	}
 
+	/** Absolute COE per-request budget override. Undefined = 70% of the model window. */
+	getCoeBudgetTokens(): number | undefined {
+		const value = this.settings.context?.maxBudgetTokens;
+		return typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.floor(value) : undefined;
+	}
+
+	/** Max files in the SCE workspace slice. Undefined = engine default. */
+	getSceMaxFiles(): number | undefined {
+		const value = this.settings.context?.sceMaxFiles;
+		return typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.floor(value) : undefined;
+	}
+
+	/** Shared token budget for the SCE slice. Undefined = engine default. */
+	getSceBudgetTokens(): number | undefined {
+		const value = this.settings.context?.sceBudgetTokens;
+		return typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.floor(value) : undefined;
+	}
+
+	/** Extra entry files for the SCE fallback path. */
+	getSceImportantFiles(): string[] | undefined {
+		const value = this.settings.context?.sceImportantFiles;
+		return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : undefined;
+	}
+
+	/** SCE trigram-similarity ranking instead of term BM25. Default false. */
+	getSceSemanticEnabled(): boolean {
+		return this.settings.context?.enableSemantic ?? false;
+	}
+
 	getEnabledModels(): string[] | undefined {
 		return this.settings.enabledModels;
 	}
@@ -1350,7 +1388,7 @@ export class SettingsManager {
 	}
 
 	getShowHardwareCursor(): boolean {
-		return this.settings.showHardwareCursor ?? process.env.PI_HARDWARE_CURSOR === "1";
+		return this.settings.showHardwareCursor ?? process.env.ARCHE_HARDWARE_CURSOR === "1";
 	}
 
 	setShowHardwareCursor(enabled: boolean): void {

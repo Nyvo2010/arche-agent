@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+- Rebrand `piConfig` to `arche-agent`, configDir `.arche/agent`, env `ARCHE_AGENT_*`.
+- `KNOWLEDGE.md` SSOT + merged `AGENTS.md` execution policy.
+- SCE (`sce.ts`) and COE (`coe.ts`) engines: workspace excerpt slices and per-request budget optimization.
+
 ## [0.85.1] - 2026-09-05
 
 ## [0.85.0] - 2026-09-04

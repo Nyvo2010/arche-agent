@@ -1,5 +1,14 @@
 import { join } from "node:path";
-import { Agent, type AgentMessage, setDefaultStreamFn, type ThinkingLevel } from "@earendil-works/pi-agent-core";
+import {
+	Agent,
+	type AgentMessage,
+	applySceSlice,
+	optimizeMessagesForBudget,
+	resolveMaxContextTokens,
+	SceCache,
+	setDefaultStreamFn,
+	type ThinkingLevel,
+} from "@earendil-works/pi-agent-core";
 import { clampThinkingLevel, type Message, type Model, streamSimple } from "@earendil-works/pi-ai/compat";
 import { getAgentDir } from "../config.ts";
 import { resolvePath } from "../utils/paths.ts";
@@ -13,6 +22,7 @@ import { ModelRuntime } from "./model-runtime.ts";
 import { mergeProviderAttributionHeaders } from "./provider-attribution.ts";
 import type { ResourceLoader } from "./resource-loader.ts";
 import { DefaultResourceLoader } from "./resource-loader.ts";
+import { scanWorkspaceDocs } from "./sce-scan.ts";
 import { getDefaultSessionDir, SessionManager } from "./session-manager.ts";
 import { SettingsManager } from "./settings-manager.ts";
 import { time } from "./timings.ts";
@@ -302,6 +312,8 @@ export async function createAgentSession(options: CreateAgentSessionOptions = {}
 	};
 
 	const extensionRunnerRef: { current?: ExtensionRunner } = {};
+	// SCE slice cache: one per session, dropped on workspace mutations.
+	const sceCache = new SceCache();
 
 	agent = new Agent({
 		initialState: {
@@ -359,10 +371,74 @@ export async function createAgentSession(options: CreateAgentSessionOptions = {}
 			});
 		},
 		sessionId: sessionManager.getSessionId(),
+		// Workspace writes invalidate the SCE slice so the next turn re-scans.
+		afterToolCall: async (context) => {
+			try {
+				const name = context.toolCall.name;
+				if (name === "write" || name === "edit" || name === "bash" || name === "powershell") {
+					sceCache.invalidate();
+				}
+			} catch {
+				// Never break tool execution for cache bookkeeping.
+			}
+			return undefined;
+		},
 		transformContext: async (messages) => {
 			const runner = extensionRunnerRef.current;
-			if (!runner) return messages;
-			return runner.emitContext(messages);
+			const extended = runner ? await runner.emitContext(messages) : messages;
+			// SCE runs first: real workspace excerpts prepended as one marked
+			// message (per-request copy only, stored history untouched).
+			let withContext = extended;
+			try {
+				const applied = await applySceSlice(extended, {
+					root: cwd,
+					cache: sceCache,
+					scanDocs: (scanRoot, terms, scanOptions) => scanWorkspaceDocs(scanRoot, terms, scanOptions),
+					maxFiles: settingsManager.getSceMaxFiles(),
+					budgetTokens: settingsManager.getSceBudgetTokens(),
+					enableSemantic: settingsManager.getSceSemanticEnabled(),
+					importantFiles: settingsManager.getSceImportantFiles(),
+					debug: process.env.ARCHE_SCE_DEBUG ? (line: string) => console.log(line) : undefined,
+				});
+				withContext = applied.messages;
+			} catch {
+				withContext = extended;
+			}
+			// COE runs last so the budget holds for the actual request.
+			// Snapshot is read live: model, system prompt, and tools can all
+			// change mid-session. Never throws (falls back to input).
+			try {
+				const state = agent.state;
+				const maxContextTokens = resolveMaxContextTokens(
+					state.model.contextWindow,
+					settingsManager.getCoeBudgetTokens(),
+				);
+				if (maxContextTokens <= 0) return withContext;
+				const result = optimizeMessagesForBudget(
+					withContext,
+					{ systemPrompt: state.systemPrompt, tools: state.tools },
+					{ maxContextTokens },
+				);
+				if (process.env.ARCHE_COE_DEBUG) {
+					const acted = result.droppedMessages > 0 || result.truncatedToolResults > 0;
+					console.log(
+						`[COE] ${acted ? "trimmed" : "pass"} ${result.tokensBefore} -> ${result.tokensAfter} tokens ` +
+							`(budget ${result.maxContextTokens}, ` +
+							`${result.truncatedToolResults} compressed, ${result.droppedMessages} dropped, ` +
+							`in ${withContext.length} -> ${result.messages.length} msgs, ` +
+							`query: ${result.queryTerms.slice(0, 8).join(",")})`,
+					);
+					if (result.tokensAfter > result.maxContextTokens) {
+						console.log(
+							`[COE] over budget floor: ${result.tokensAfter} > ${result.maxContextTokens} ` +
+								`(system prompt + tools + SCE slice + reserved tail are irreducible)`,
+						);
+					}
+				}
+				return result.messages;
+			} catch {
+				return withContext;
+			}
 		},
 		steeringMode: settingsManager.getSteeringMode(),
 		followUpMode: settingsManager.getFollowUpMode(),

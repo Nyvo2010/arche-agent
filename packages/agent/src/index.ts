@@ -40,6 +40,7 @@ export {
 } from "@earendil-works/pi-telemetry";
 export * from "./agent.ts";
 export * from "./agent-loop.ts";
+export * from "./coe.ts";
 export * from "./harness/agent-harness.ts";
 export {
 	type BranchPreparation,
@@ -147,6 +148,7 @@ export { applyShellOutputUpdate } from "./harness/utils/output-capture.ts";
 export * from "./harness/utils/shell-output.ts";
 export * from "./harness/utils/truncate.ts";
 export * from "./proxy.ts";
+export * from "./sce.ts";
 export * from "./search/index.ts";
 export { setDefaultStreamFn } from "./stream-fn.ts";
 export * from "./types.ts";

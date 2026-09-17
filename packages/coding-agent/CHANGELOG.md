@@ -3,6 +3,11 @@
 ## [Unreleased]
 
 ### Added
+- Rebrand `piConfig` to `arche-agent`, configDir `.arche/agent`, env `ARCHE_AGENT_*`.
+- `KNOWLEDGE.md` SSOT + merged `AGENTS.md` execution policy.
+- Wire SCE/COE into sessions via `transformContext`, with `context.*` settings knobs and `ARCHE_SCE_DEBUG`/`ARCHE_COE_DEBUG` logging.
+
+### Added
 
 - Added `ctx.modelRegistry.stream()` and `streamSimple()` for extension model calls through configured providers with resolved authentication ([#8964](https://github.com/earendil-works/pi/issues/8964)).
 - Added per-model `reserveTokens` and `keepRecentTokens` settings through `compaction.modelOverrides`, with ordinary compaction settings as fallback ([#8133](https://github.com/earendil-works/pi-mono/issues/8133)).
