@@ -39,7 +39,7 @@ beforeEach(async () => {
 	agentDir = await mkdtemp(join("/tmp", "pi-experimental-agent-"));
 	directories.add(agentDir);
 	await configureExperimentalWorkerModel(agentDir);
-	vi.stubEnv("PI_CODING_AGENT_DIR", agentDir);
+	vi.stubEnv("ARCHE_CODING_AGENT_DIR", agentDir);
 	await createExperimentalSessions(join(agentDir, "experimental", "sessions"), ["demo-1", "demo-2"]);
 });
 
@@ -82,12 +82,12 @@ afterEach(async () => {
 });
 
 describe("experimental durable server composition", () => {
-	test("uses PI_SERVER_DIR and PI_SERVER_ID", async () => {
+	test("uses ARCHE_SERVER_DIR and ARCHE_SERVER_ID", async () => {
 		const directory = await mkdtemp(join("/tmp", "pi-server-dir-"));
 		directories.add(directory);
 		const serverId = "00000000-0000-4000-8000-000000000001";
-		vi.stubEnv("PI_SERVER_DIR", directory);
-		vi.stubEnv("PI_SERVER_ID", serverId);
+		vi.stubEnv("ARCHE_SERVER_DIR", directory);
+		vi.stubEnv("ARCHE_SERVER_ID", serverId);
 		const runtime = await startServer();
 		servers.add(runtime);
 
@@ -168,8 +168,8 @@ describe("experimental durable server composition", () => {
 		const directory = await mkdtemp(join("/tmp", "pi-auto-server-"));
 		directories.add(directory);
 		const serverId = "00000000-0000-4000-8000-000000000001";
-		vi.stubEnv("PI_SERVER_DIR", directory);
-		vi.stubEnv("PI_SERVER_ID", serverId);
+		vi.stubEnv("ARCHE_SERVER_DIR", directory);
+		vi.stubEnv("ARCHE_SERVER_ID", serverId);
 
 		const results = await Promise.all([runClient({ command: "client" }), runClient({ command: "client" })]);
 		expect(results).toEqual([
@@ -198,8 +198,8 @@ describe("experimental durable server composition", () => {
 		directories.add(directory);
 		const serverId = "00000000-0000-4000-8000-000000000001";
 		const packagePath = fileURLToPath(new URL("../examples/plugins/pi-example-plugin", import.meta.url));
-		vi.stubEnv("PI_SERVER_DIR", directory);
-		vi.stubEnv("PI_SERVER_ID", serverId);
+		vi.stubEnv("ARCHE_SERVER_DIR", directory);
+		vi.stubEnv("ARCHE_SERVER_ID", serverId);
 
 		const first = await openClientRuntime({ command: "client", ...sessionWorkerModel });
 		try {
@@ -235,8 +235,8 @@ describe("experimental durable server composition", () => {
 		const directory = await mkdtemp(join("/tmp", "pi-auto-session-"));
 		directories.add(directory);
 		const serverId = "00000000-0000-4000-8000-000000000001";
-		vi.stubEnv("PI_SERVER_DIR", directory);
-		vi.stubEnv("PI_SERVER_ID", serverId);
+		vi.stubEnv("ARCHE_SERVER_DIR", directory);
+		vi.stubEnv("ARCHE_SERVER_ID", serverId);
 
 		await expect(runClient({ command: "client", sessionId: "demo-1", ...sessionWorkerModel })).resolves.toEqual({
 			kind: "attached",
@@ -738,7 +738,7 @@ describe("experimental durable server composition", () => {
 	test("retires an unclaimed idle worker after replacement demand expires", async () => {
 		const directory = await mkdtemp(join("/tmp", "pi-orphan-worker-"));
 		directories.add(directory);
-		vi.stubEnv("__PI_SESSION_WORKER_ORPHAN_DEMAND_GRACE_MS", "50");
+		vi.stubEnv("__ARCHE_SESSION_WORKER_ORPHAN_DEMAND_GRACE_MS", "50");
 		const first = await startServer({ ...sessionWorkerModel, directory });
 		servers.add(first);
 		await attachClient(first, "demo-1");

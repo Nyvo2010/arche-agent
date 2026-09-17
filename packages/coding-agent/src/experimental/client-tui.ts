@@ -264,7 +264,7 @@ export class ExperimentalClientTui implements Component {
 			return operation;
 		};
 		const presentationBridgeFacet = defineFacet({
-			id: "@pi/presentation-bridge",
+			id: "@arche/presentation-bridge",
 			setup: (env) => {
 				env.provide(PresentationUI, {
 					select: (title, items, selectedValue) =>

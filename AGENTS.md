@@ -2,10 +2,11 @@
 
 Arche Agent is built on Pi. This file merges Arche project guidelines with Pi development rules.
 
-## Project Knowledge (SSOT)
+## Project Knowledge and Todo's (SSOT)
 
 - `KNOWLEDGE.md` is the single source of truth for the Arche project. It must stay up to date and contain all knowledge and decisions related to the project.
 - Update `KNOWLEDGE.md` on every significant decision, architecture change, or scope change.
+- `TODO.md` is the single source where we track what must be done and what is done. Keep it up to date while working.
 
 ## Execution Policy
 
@@ -17,6 +18,7 @@ Arche Agent is built on Pi. This file merges Arche project guidelines with Pi de
 - Don’t overthink it: if the user’s approach is reasonable, just do it. Only suggest a better approach when there is a meaningful benefit in correctness, simplicity, maintainability, safety, or outcome.
 - Match the abstraction level: stay at the same level of abstraction as the user. Only introduce deeper technical details, broader architecture, or extra complexity when it is genuinely necessary.
 - Intervene proportionally: challenge assumptions or propose alternatives when it materially matters; otherwise, stay out of the way and execute the task.
+- Commit frequently: make small, incremental changes and commit them often. Avoid large, sweeping changes that are hard to review or revert.
 
 
 ## Arche Behavioral Guidelines

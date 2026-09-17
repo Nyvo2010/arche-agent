@@ -15,7 +15,7 @@ npm run eval -- --provider openai --model gpt-5.6-sol
 The equivalent environment variables are:
 
 ```bash
-PI_PROVIDER=openai PI_MODEL=gpt-5.6-sol npm run eval
+ARCHE_PROVIDER=openai ARCHE_MODEL=gpt-5.6-sol npm run eval
 ```
 
 CLI values take precedence and become defaults for harnesses that do not select a model explicitly. Provider and model must be supplied together. The runner also allows no default when every executed harness configures its own model.
@@ -40,7 +40,7 @@ npm run eval -- \
 ```
 
 `--repetitions` applies to suites declared with `evalHarnessTable(...)`. An explicit `repetitions` value in a suite
-overrides the command-line default. `PI_EVAL_REPETITIONS=5` is equivalent to the command-line option. Use one repetition
+overrides the command-line default. `ARCHE_EVAL_REPETITIONS=5` is equivalent to the command-line option. Use one repetition
 while developing an eval and five when reporting lift.
 
 ## Reports and artifacts

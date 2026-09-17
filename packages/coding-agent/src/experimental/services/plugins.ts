@@ -9,11 +9,11 @@ export interface PresentationPlugins {
 	reload(context: Context): Promise<JsonValue>;
 }
 
-export const PresentationPlugins = defineService<PresentationPlugins>("pi.presentation-plugins");
+export const PresentationPlugins = defineService<PresentationPlugins>("arche.presentation-plugins");
 
 /** Plugin facets hosted in the currently attached Session worker. */
 export interface SessionPlugins {
 	reload(context: Context): Promise<void>;
 }
 
-export const SessionPlugins = defineService<SessionPlugins>("pi.session-plugins");
+export const SessionPlugins = defineService<SessionPlugins>("arche.session-plugins");

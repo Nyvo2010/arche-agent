@@ -12,4 +12,4 @@ export interface Transcript {
 	readonly state: ReplicatedState<TranscriptState>;
 }
 
-export const Transcript = defineService<Transcript>("pi.transcript");
+export const Transcript = defineService<Transcript>("arche.transcript");

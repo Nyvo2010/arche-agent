@@ -113,7 +113,7 @@ export function deriveEvalGroupKey(input: unknown, repetition: number): string {
 
 export function resolveEvalRepetitions(
 	explicit: number | undefined,
-	environmentValue: string | undefined = process.env.PI_EVAL_REPETITIONS,
+	environmentValue: string | undefined = process.env.ARCHE_EVAL_REPETITIONS,
 ): number {
 	const repetitions = explicit ?? (environmentValue === undefined ? 1 : Number(environmentValue));
 	if (!Number.isSafeInteger(repetitions) || repetitions < 1) {

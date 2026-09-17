@@ -32,4 +32,4 @@ export interface Models {
 	selectThinking(level: ThinkingLevel, context: Context): Promise<void>;
 }
 
-export const Models = defineService<Models>("pi.models");
+export const Models = defineService<Models>("arche.models");

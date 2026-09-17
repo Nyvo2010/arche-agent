@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { stripVTControlCharacters } from "node:util";
 import type { Reporter, SerializedError, TestCase, TestModule, TestRunEndReason, Vitest } from "vitest/node";
 import { isHarnessRun } from "vitest-evals/harness";
-import { PI_SESSION_SNAPSHOT_ARTIFACT, persistEvalArtifactReferences } from "./artifacts.ts";
+import { ARCHE_SESSION_SNAPSHOT_ARTIFACT, persistEvalArtifactReferences } from "./artifacts.ts";
 import { EVAL_HARNESS_ITERATION_ARTIFACT, parseEvalHarnessIterationArtifact } from "./harness-table.ts";
 import { formatHarnessComparisonReport, type HarnessObservation, summarizeHarnessComparisons } from "./summary.ts";
 
@@ -13,7 +13,7 @@ function readFiniteNumber(value: unknown): number | undefined {
 }
 
 async function appendHarnessRunReport(test: TestCase): Promise<void> {
-	const artifactDirectory = process.env.PI_EVAL_ARTIFACT_DIR?.trim();
+	const artifactDirectory = process.env.ARCHE_EVAL_ARTIFACT_DIR?.trim();
 	if (!artifactDirectory) return;
 	const harness = test.meta().harness;
 	if (!harness || !isHarnessRun(harness.run)) return;
@@ -22,7 +22,9 @@ async function appendHarnessRunReport(test: TestCase): Promise<void> {
 	const artifactRunId = run.artifacts?.runId;
 	const runId = typeof artifactRunId === "string" ? artifactRunId : randomUUID();
 	const metadata = Object.fromEntries(
-		Object.entries(run.artifacts ?? {}).filter(([name]) => name !== "runId" && name !== PI_SESSION_SNAPSHOT_ARTIFACT),
+		Object.entries(run.artifacts ?? {}).filter(
+			([name]) => name !== "runId" && name !== ARCHE_SESSION_SNAPSHOT_ARTIFACT,
+		),
 	);
 	const record = {
 		schemaVersion: 1,
@@ -108,7 +110,7 @@ export default class EvalHarnessReporter implements Reporter {
 		const report = summarizeHarnessComparisons(collectHarnessObservations(modules));
 		const formatted = formatHarnessComparisonReport(report);
 		if (formatted) this.vitest?.logger.log(`\n${formatted}`);
-		const artifactDirectory = process.env.PI_EVAL_ARTIFACT_DIR?.trim();
+		const artifactDirectory = process.env.ARCHE_EVAL_ARTIFACT_DIR?.trim();
 		if (artifactDirectory) {
 			await mkdir(artifactDirectory, { recursive: true, mode: 0o700 });
 			await Promise.all([

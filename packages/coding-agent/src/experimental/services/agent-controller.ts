@@ -51,4 +51,4 @@ export interface AgentController {
 	navigate(request: AgentNavigationRequest, context: Context): Promise<AgentOperationResponse>;
 }
 
-export const AgentController = defineService<AgentController>("pi.agent-controller");
+export const AgentController = defineService<AgentController>("arche.agent-controller");

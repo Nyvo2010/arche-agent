@@ -15,8 +15,8 @@ const strictToolNames = ["read", "bash", "powershell", "edit", "write"] as const
 describe("strict built-in tools", () => {
 	afterEach(() => vi.unstubAllEnvs());
 
-	it.each([undefined, "0", "1"])("prefers strict sampling with PI_EXPERIMENTAL=%s", (experimental) => {
-		vi.stubEnv("PI_EXPERIMENTAL", experimental);
+	it.each([undefined, "0", "1"])("prefers strict sampling with ARCHE_EXPERIMENTAL=%s", (experimental) => {
+		vi.stubEnv("ARCHE_EXPERIMENTAL", experimental);
 		const definitions = createAllToolDefinitions(process.cwd());
 		const tools = createAllTools(process.cwd());
 		for (const name of strictToolNames) {

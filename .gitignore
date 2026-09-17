@@ -29,6 +29,8 @@ packages/ai/src/providers/.model-generation-*/
 coverage/
 .nyc_output/
 .pi_config/
+.arche/
+.arche/agent/
 tui-debug.log
 compaction-results/
 .opencode/

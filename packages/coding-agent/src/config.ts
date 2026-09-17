@@ -24,8 +24,8 @@ export const isBunBinary =
 export const isBunRuntime = !!process.versions.bun;
 
 /** Detect the esbuild-bundled Node.js distribution. */
-declare const PI_BUNDLED_NODE: boolean;
-export const isBundledNode = typeof PI_BUNDLED_NODE !== "undefined" && PI_BUNDLED_NODE;
+declare const ARCHE_BUNDLED_NODE: boolean;
+export const isBundledNode = typeof ARCHE_BUNDLED_NODE !== "undefined" && ARCHE_BUNDLED_NODE;
 
 // =============================================================================
 // Install Method Detection
@@ -388,7 +388,7 @@ export function findNodePackageDir(startDir: string): string {
 
 export function getPackageDir(): string {
 	// Allow override via environment variable (useful for Nix/Guix where store paths tokenize poorly)
-	const envDir = process.env.PI_PACKAGE_DIR;
+	const envDir = process.env.ARCHE_PACKAGE_DIR ?? process.env.ARCHE_PACKAGE_DIR;
 	if (envDir) {
 		return normalizePath(envDir);
 	}
@@ -504,9 +504,12 @@ export const APP_TITLE: string = piConfigName ? APP_NAME : "π";
 export const CONFIG_DIR_NAME: string = pkg.piConfig?.configDir || ".pi";
 export const VERSION: string = pkg.version || "0.0.0";
 
-// e.g., PI_CODING_AGENT_DIR or TAU_CODING_AGENT_DIR
-export const ENV_AGENT_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_DIR`;
-export const ENV_SESSION_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_SESSION_DIR`;
+// Env prefix: first segment of the app name, uppercased.
+// "arche-agent" yields ARCHE_ (per Arche decision: ARCHE_CODING_AGENT_DIR);
+// Pi's "pi" yields PI_ so Pi behavior is unchanged.
+export const ENV_PREFIX = `${piConfigName ? piConfigName.split("-")[0]!.toUpperCase() : "PI"}_`;
+export const ENV_AGENT_DIR = `${ENV_PREFIX}CODING_AGENT_DIR`;
+export const ENV_SESSION_DIR = `${ENV_PREFIX}CODING_AGENT_SESSION_DIR`;
 
 export function expandTildePath(path: string): string {
 	return normalizePath(path);
@@ -516,7 +519,7 @@ const DEFAULT_SHARE_VIEWER_URL = "https://pi.dev/session/";
 
 /** Get the share viewer URL for a gist ID. */
 export function getShareViewerUrl(gistId: string): string {
-	const baseUrl = process.env.PI_SHARE_VIEWER_URL || DEFAULT_SHARE_VIEWER_URL;
+	const baseUrl = process.env.ARCHE_SHARE_VIEWER_URL || process.env.ARCHE_SHARE_VIEWER_URL || DEFAULT_SHARE_VIEWER_URL;
 	return `${baseUrl}#${gistId}`;
 }
 
@@ -529,6 +532,13 @@ export function getAgentDir(): string {
 	const envDir = process.env[ENV_AGENT_DIR];
 	if (envDir) {
 		return expandTildePath(envDir);
+	}
+	// CONFIG_DIR_NAME may already end with "agent" (e.g. ".arche/agent");
+	// only append the "agent" segment when it is not already present,
+	// otherwise the path would double up (~/.arche/agent/agent).
+	const segments = CONFIG_DIR_NAME.split("/").filter(Boolean);
+	if (segments[segments.length - 1] === "agent") {
+		return join(homedir(), CONFIG_DIR_NAME);
 	}
 	return join(homedir(), CONFIG_DIR_NAME, "agent");
 }

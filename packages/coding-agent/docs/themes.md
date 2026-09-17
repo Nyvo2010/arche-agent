@@ -19,7 +19,7 @@ Themes are JSON files that define colors for the TUI.
 Pi loads themes from:
 
 - Built-in: `dark`, `light`
-- Global: `~/.pi/agent/themes/*.json`
+- Global: `~/.arche/agent/themes/*.json`
 - Project: `.pi/themes/*.json` (only after the project is trusted)
 - Packages: `themes/` directories or `pi.themes` entries in `package.json`
 - Settings: `themes` array with files or directories
@@ -44,13 +44,13 @@ On first run, pi detects your terminal background and defaults to `dark` or `lig
 Start an interactive run with a theme without changing the saved setting:
 
 ```bash
-pi --use-theme light
+arche-agent --use-theme light
 ```
 
 To follow terminal appearance, use `lightTheme/darkTheme` syntax:
 
 ```bash
-pi --use-theme light/dark
+arche-agent --use-theme light/dark
 ```
 
 The CLI value is the initial theme for that run. Choosing another theme later in `/settings` applies it immediately
@@ -61,8 +61,8 @@ and saves it normally.
 1. Create a theme file:
 
 ```bash
-mkdir -p ~/.pi/agent/themes
-vim ~/.pi/agent/themes/my-theme.json
+mkdir -p ~/.arche/agent/themes
+vim ~/.arche/agent/themes/my-theme.json
 ```
 
 2. Define the theme with all required colors (see [Color Tokens](#color-tokens)):

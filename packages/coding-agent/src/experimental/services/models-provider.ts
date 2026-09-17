@@ -121,7 +121,7 @@ export function createModelsServiceFacet(options: {
 	readonly settingsManager?: SettingsManager;
 }): Facet {
 	return defineFacet({
-		id: "@pi/models",
+		id: "@arche/models",
 		setup(env) {
 			const runtime = createModelsService(
 				options.lane,

@@ -85,7 +85,7 @@ function commonBuildOptions() {
 		absWorkingDir: repoRoot,
 		banner,
 		bundle: true,
-		define: { PI_BUNDLED_NODE: "true" },
+		define: { ARCHE_BUNDLED_NODE: "true" },
 		external: ["@earendil-works/chord", "@silvia-odwyer/photon-node"],
 		format: "esm",
 		legalComments: "none",

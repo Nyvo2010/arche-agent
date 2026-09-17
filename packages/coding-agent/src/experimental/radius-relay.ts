@@ -473,7 +473,7 @@ class RadiusClientByteTransport implements ByteTransport {
 
 	close(): void {
 		if (!this.#markClosed()) return;
-		this.#socket.close(1000, "Pi client closed");
+		this.#socket.close(1000, "Arche Agent client closed");
 	}
 
 	#fail(error: Error): void {

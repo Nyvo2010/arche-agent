@@ -10,8 +10,8 @@ describeEval("Answer a basic prompt", { harness: piCodingAgentHarness }, (it) =>
 
 		expect(result.output.trim()).toBe("Paris");
 		expect(result.errors).toEqual([]);
-		expect(result.usage.provider).toBe(process.env.PI_PROVIDER);
-		expect(result.usage.model).toBe(process.env.PI_MODEL);
+		expect(result.usage.provider).toBe(process.env.ARCHE_PROVIDER);
+		expect(result.usage.model).toBe(process.env.ARCHE_MODEL);
 		expect(result.usage.totalTokens).toBeGreaterThan(0);
 	});
 });

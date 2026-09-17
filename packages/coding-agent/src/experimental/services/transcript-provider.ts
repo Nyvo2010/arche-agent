@@ -92,7 +92,7 @@ export function createTranscriptService(
 
 export function createTranscriptServiceFacet(lane: AgentLane): Facet {
 	return defineFacet({
-		id: "@pi/transcript",
+		id: "@arche/transcript",
 		setup(env) {
 			const runtime = createTranscriptService(lane, env.replicatedState);
 			env.provide(Transcript, runtime.service);

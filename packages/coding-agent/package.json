@@ -8,7 +8,7 @@
 		"configDir": ".arche/agent"
 	},
 	"bin": {
-		"pi": "dist/bundle/cli.js"
+		"arche": "dist/bundle/cli.js"
 	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",

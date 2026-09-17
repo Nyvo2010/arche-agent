@@ -10,7 +10,7 @@ Pi is distributed as an npm package:
 npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 ```
 
-`--ignore-scripts` disables dependency lifecycle scripts during install. Pi does not require install scripts for normal npm installs.
+`--ignore-scripts` disables dependency lifecycle scripts during install. Arche Agent does not require install scripts for normal npm installs.
 
 ### Uninstall
 
@@ -30,13 +30,13 @@ yarn global remove @earendil-works/pi-coding-agent
 bun uninstall -g @earendil-works/pi-coding-agent
 ```
 
-Uninstalling pi leaves settings, credentials, sessions, and installed pi packages in `~/.pi/agent/`.
+Uninstalling pi leaves settings, credentials, sessions, and installed pi packages in `~/.arche/agent/`.
 
 Then start pi in the project directory you want it to work on:
 
 ```bash
 cd /path/to/project
-pi
+arche-agent
 ```
 
 ## Authenticate
@@ -59,10 +59,10 @@ Set an API key before launching pi:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-pi
+arche-agent
 ```
 
-You can also run `/login` and select an API-key provider to store the key in `~/.pi/agent/auth.json`.
+You can also run `/login` and select an API-key provider to store the key in `~/.arche/agent/auth.json`.
 
 See [Providers](providers.md) for all supported providers, environment variables, and cloud-provider setup.
 
@@ -97,7 +97,7 @@ Pi loads context files at startup. Add an `AGENTS.md` file to tell it how to wor
 
 Pi loads:
 
-- `~/.pi/agent/AGENTS.md` for global instructions
+- `~/.arche/agent/AGENTS.md` for global instructions
 - `AGENTS.md` or `CLAUDE.md` from parent directories and the current directory
 
 If a directory contains `AGENTS.override.md`, Pi loads it instead of `AGENTS.md` or `CLAUDE.md` from that directory.
@@ -138,8 +138,8 @@ Sessions are saved automatically:
 ```bash
 pi -c                  # Continue most recent session
 pi -r                  # Browse previous sessions
-pi --name "my task"    # Set session display name at startup
-pi --session <path|id> # Open a specific session
+arche-agent --name "my task"    # Set session display name at startup
+arche-agent --session <path|id> # Open a specific session
 ```
 
 Inside pi, use `/resume`, `/new`, `/tree`, `/fork`, and `/clone` to manage sessions.
@@ -149,19 +149,19 @@ Inside pi, use `/resume`, `/new`, `/tree`, `/fork`, and `/clone` to manage sessi
 For one-shot prompts:
 
 ```bash
-pi -p "Summarize this codebase"
-cat README.md | pi -p "Summarize this text"
-pi -p @screenshot.png "What's in this image?"
+arche-agent -p "Summarize this codebase"
+cat README.md | arche-agent -p "Summarize this text"
+arche-agent -p @screenshot.png "What's in this image?"
 ```
 
 Use `--mode json` for JSON event output or `--mode rpc` for process integration.
 
 ## Next steps
 
-- [Using Pi](usage.md) - interactive mode, slash commands, sessions, context files, and CLI reference.
+- [Using Arche Agent](usage.md) - interactive mode, slash commands, sessions, context files, and CLI reference.
 - [Providers](providers.md) - authentication and model setup.
 - [Settings](settings.md) - global and project configuration.
 - [Keybindings](keybindings.md) - shortcuts and customization.
-- [Pi Packages](packages.md) - install shared extensions, skills, prompts, and themes.
+- [Arche Agent packages](packages.md) - install shared extensions, skills, prompts, and themes.
 
 Platform notes: [Windows](windows.md), [Termux](termux.md), [tmux](tmux.md), [Terminal setup](terminal-setup.md), [Shell aliases](shell-aliases.md).

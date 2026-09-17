@@ -6,8 +6,8 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const artifactDirectory = process.env.PI_EVAL_ARTIFACT_DIR
-	? resolve(packageRoot, process.env.PI_EVAL_ARTIFACT_DIR)
+const artifactDirectory = process.env.ARCHE_EVAL_ARTIFACT_DIR
+	? resolve(packageRoot, process.env.ARCHE_EVAL_ARTIFACT_DIR)
 	: resolve(
 			packageRoot,
 			".eval",
@@ -63,7 +63,7 @@ for (let index = 0; index < args.length; index += 1) {
 
 provider = provider?.trim() || undefined;
 model = model?.trim() || undefined;
-const repetitionsText = (repetitions ?? process.env.PI_EVAL_REPETITIONS)?.trim();
+const repetitionsText = (repetitions ?? process.env.ARCHE_EVAL_REPETITIONS)?.trim();
 const repetitionCount = repetitionsText ? Number(repetitionsText) : 1;
 if (!Number.isSafeInteger(repetitionCount) || repetitionCount < 1) {
 	console.error("Repetitions must be a positive integer.");
@@ -75,10 +75,10 @@ if (hasCliModelSelection) {
 		process.exit(1);
 	}
 } else {
-	provider = process.env.PI_PROVIDER?.trim() || undefined;
-	model = process.env.PI_MODEL?.trim() || undefined;
+	provider = process.env.ARCHE_PROVIDER?.trim() || undefined;
+	model = process.env.ARCHE_MODEL?.trim() || undefined;
 	if (Boolean(provider) !== Boolean(model)) {
-		console.error("Default model selection requires both PI_PROVIDER and PI_MODEL.");
+		console.error("Default model selection requires both ARCHE_PROVIDER and ARCHE_MODEL.");
 		process.exit(1);
 	}
 }
@@ -93,15 +93,15 @@ console.error(`[eval] repetitions=${repetitionCount}`);
 console.error(`[eval] artifacts=${artifactDirectory}`);
 const childEnvironment = {
 	...process.env,
-	PI_EVAL_ARTIFACT_DIR: artifactDirectory,
-	PI_EVAL_REPETITIONS: String(repetitionCount),
+	ARCHE_EVAL_ARTIFACT_DIR: artifactDirectory,
+	ARCHE_EVAL_REPETITIONS: String(repetitionCount),
 };
 if (provider && model) {
-	childEnvironment.PI_PROVIDER = provider;
-	childEnvironment.PI_MODEL = model;
+	childEnvironment.ARCHE_PROVIDER = provider;
+	childEnvironment.ARCHE_MODEL = model;
 } else {
-	delete childEnvironment.PI_PROVIDER;
-	delete childEnvironment.PI_MODEL;
+	delete childEnvironment.ARCHE_PROVIDER;
+	delete childEnvironment.ARCHE_MODEL;
 }
 const result = spawnSync(
 	process.execPath,

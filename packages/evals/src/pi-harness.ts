@@ -24,7 +24,7 @@ import {
 	type TranscriptEvent,
 	toJsonValue,
 } from "vitest-evals/harness";
-import { PI_SESSION_SNAPSHOT_ARTIFACT } from "./vitest-evals/artifacts.ts";
+import { ARCHE_SESSION_SNAPSHOT_ARTIFACT } from "./vitest-evals/artifacts.ts";
 
 export type PiCodingAgentInput = string | Array<{ type: "prompt"; content: string } | { type: "reload" }>;
 
@@ -64,12 +64,12 @@ export function excludePiDocumentation(defaultPrompt: string): string {
 
 export function resolveModelSelection(
 	explicitModel: PiCodingAgentModelSelection | undefined,
-	environment: { PI_PROVIDER?: string; PI_MODEL?: string } = process.env,
+	environment: { ARCHE_PROVIDER?: string; ARCHE_MODEL?: string } = process.env,
 ): PiCodingAgentModelSelection {
-	const provider = (explicitModel?.provider ?? environment.PI_PROVIDER)?.trim();
-	const id = (explicitModel?.id ?? environment.PI_MODEL)?.trim();
+	const provider = (explicitModel?.provider ?? environment.ARCHE_PROVIDER)?.trim();
+	const id = (explicitModel?.id ?? environment.ARCHE_MODEL)?.trim();
 	if (!provider || !id) {
-		throw new Error("Select a harness model explicitly or set both PI_PROVIDER and PI_MODEL as defaults.");
+		throw new Error("Select a harness model explicitly or set both ARCHE_PROVIDER and ARCHE_MODEL as defaults.");
 	}
 	return { provider, id };
 }
@@ -167,7 +167,7 @@ async function runPiCodingAgent<TOutput extends JsonValue>(
 			agentDir,
 			modelRuntime,
 			settingsManager: SettingsManager.inMemory({
-				shellCommandPrefix: `export HOME=${JSON.stringify(isolatedHome)}; unset PI_CODING_AGENT_DIR PI_EVAL_ARTIFACT_DIR PI_MODEL PI_PROVIDER PI_REASONING_LEVEL PI_SESSION_FILE PI_SESSION_ID;`,
+				shellCommandPrefix: `export HOME=${JSON.stringify(isolatedHome)}; unset ARCHE_CODING_AGENT_DIR ARCHE_EVAL_ARTIFACT_DIR ARCHE_MODEL ARCHE_PROVIDER ARCHE_REASONING_LEVEL ARCHE_SESSION_FILE ARCHE_SESSION_ID;`,
 			}),
 			...(extensionFactories.length > 0 ? { resourceLoaderOptions: { extensionFactories } } : {}),
 		});
@@ -259,7 +259,7 @@ async function runPiCodingAgent<TOutput extends JsonValue>(
 		try {
 			const sessionPath = sessionManager.getSessionFile();
 			if (sessionPath && existsSync(sessionPath)) {
-				setArtifact(PI_SESSION_SNAPSHOT_ARTIFACT, await readFile(sessionPath, "utf8"));
+				setArtifact(ARCHE_SESSION_SNAPSHOT_ARTIFACT, await readFile(sessionPath, "utf8"));
 			}
 		} catch (error) {
 			cleanupErrors.push(error);

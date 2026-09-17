@@ -74,6 +74,13 @@ Do not edit `CHANGELOG.md`. Changelog entries are added by maintainers.
 
 If you are adding a new provider to `packages/ai`, see `AGENTS.md` for required tests.
 
+### Arche Review Checklist
+- [ ] `npm run check` clean, no warnings/infos
+- [ ] `TODO.md` and `KNOWLEDGE.md` updated for decisions/architecture changes
+- [ ] Surgical diff, erasable TS only, no `any` unless necessary
+- [ ] No user-facing `pi` strings left; config uses `arche-agent` / `.arche/agent` / `ARCHE_AGENT_*`
+- [ ] Changelog `## [Unreleased]` entry added if user-facing
+
 ## Questions?
 
 Ask on [Discord](https://discord.com/invite/nKXTsAcmbT).

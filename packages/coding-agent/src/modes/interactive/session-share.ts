@@ -26,7 +26,7 @@ export function exportSessionForShare(filePath: string, session: AgentSession): 
 	exportSessionToJsonl(session.sessionManager, filePath, (parentId, timestamp) => [
 		{
 			type: "custom",
-			customType: "pi.share",
+			customType: "arche.share",
 			id: crypto.randomUUID().slice(0, 8),
 			parentId,
 			timestamp,

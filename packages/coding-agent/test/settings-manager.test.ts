@@ -641,4 +641,49 @@ describe("SettingsManager", () => {
 			expect(manager.getShellPath()).toBe(homedir());
 		});
 	});
+
+	describe("context engine settings", () => {
+		it("should default SCE/COE knobs to unset", () => {
+			const manager = SettingsManager.create(projectDir, agentDir);
+			expect(manager.getCoeBudgetTokens()).toBeUndefined();
+			expect(manager.getSceMaxFiles()).toBeUndefined();
+			expect(manager.getSceBudgetTokens()).toBeUndefined();
+			expect(manager.getSceImportantFiles()).toBeUndefined();
+			expect(manager.getSceSemanticEnabled()).toBe(false);
+		});
+
+		it("should parse valid SCE/COE settings", () => {
+			writeFileSync(
+				join(agentDir, "settings.json"),
+				JSON.stringify({
+					context: {
+						maxBudgetTokens: 4000,
+						sceMaxFiles: 3,
+						sceBudgetTokens: 1000,
+						sceImportantFiles: ["src/index.ts", 42],
+						enableSemantic: true,
+					},
+				}),
+			);
+			const manager = SettingsManager.create(projectDir, agentDir);
+			expect(manager.getCoeBudgetTokens()).toBe(4000);
+			expect(manager.getSceMaxFiles()).toBe(3);
+			expect(manager.getSceBudgetTokens()).toBe(1000);
+			expect(manager.getSceImportantFiles()).toEqual(["src/index.ts"]);
+			expect(manager.getSceSemanticEnabled()).toBe(true);
+		});
+
+		it("should reject invalid SCE/COE settings", () => {
+			writeFileSync(
+				join(agentDir, "settings.json"),
+				JSON.stringify({
+					context: { maxBudgetTokens: -5, sceMaxFiles: 0, sceBudgetTokens: Number.NaN },
+				}),
+			);
+			const manager = SettingsManager.create(projectDir, agentDir);
+			expect(manager.getCoeBudgetTokens()).toBeUndefined();
+			expect(manager.getSceMaxFiles()).toBeUndefined();
+			expect(manager.getSceBudgetTokens()).toBeUndefined();
+		});
+	});
 });

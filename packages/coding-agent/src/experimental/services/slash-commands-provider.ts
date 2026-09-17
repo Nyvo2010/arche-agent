@@ -76,7 +76,7 @@ export class SlashCommandRegistry implements SlashCommands {
 
 export function createSlashCommandsRuntimeFacet(registry = new SlashCommandRegistry()): Facet {
 	return defineFacet({
-		id: "@pi/slash-commands-runtime",
+		id: "@arche/slash-commands-runtime",
 		setup(env) {
 			env.provide(SlashCommands, registry);
 		},
@@ -87,7 +87,7 @@ export function createBuiltInSlashCommandsFacet(options: {
 	reloadPresentationPlugins(data: JsonValue): Promise<void>;
 }): Facet {
 	return defineFacet({
-		id: "@pi/slash-commands-builtin",
+		id: "@arche/slash-commands-builtin",
 		setup(env) {
 			const commands = env.use(SlashCommands);
 			const models = env.use(Models);

@@ -69,7 +69,7 @@ describe("JSONL share export", () => {
 				.trim()
 				.split("\n")
 				.map((line) => JSON.parse(line) as Record<string, unknown>);
-			expect(normalRecords.some((record) => record.type === "custom" && record.customType === "pi.share")).toBe(
+			expect(normalRecords.some((record) => record.type === "custom" && record.customType === "arche.share")).toBe(
 				false,
 			);
 
@@ -93,7 +93,7 @@ describe("JSONL share export", () => {
 			};
 			expect(shareEntry).toMatchObject({
 				type: "custom",
-				customType: "pi.share",
+				customType: "arche.share",
 				parentId: resultId,
 				timestamp: expect.any(String),
 			});
