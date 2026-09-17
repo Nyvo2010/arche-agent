@@ -3,8 +3,11 @@ import {
 	Agent,
 	type AgentMessage,
 	applySceSlice,
+	DEFAULT_SCE_BUDGET_TOKENS,
+	estimateRequestTokens,
 	optimizeMessagesForBudget,
 	resolveMaxContextTokens,
+	resolveReservedTailMessages,
 	SceCache,
 	setDefaultStreamFn,
 	type ThinkingLevel,
@@ -314,6 +317,9 @@ export async function createAgentSession(options: CreateAgentSessionOptions = {}
 	const extensionRunnerRef: { current?: ExtensionRunner } = {};
 	// SCE slice cache: one per session, dropped on workspace mutations.
 	const sceCache = new SceCache();
+	// Budget floor guard warns once, on the first turn when system prompt
+	// and tools are populated (they are empty at construction time).
+	let floorWarned = false;
 
 	agent = new Agent({
 		initialState: {
@@ -409,15 +415,30 @@ export async function createAgentSession(options: CreateAgentSessionOptions = {}
 			// change mid-session. Never throws (falls back to input).
 			try {
 				const state = agent.state;
-				const maxContextTokens = resolveMaxContextTokens(
-					state.model.contextWindow,
-					settingsManager.getCoeBudgetTokens(),
-				);
+				const override = settingsManager.getCoeBudgetTokens();
+				const maxContextTokens = resolveMaxContextTokens(state.model.contextWindow, override);
+				if (!floorWarned) {
+					floorWarned = true;
+					if (override !== undefined) {
+						const snapshotTokens = estimateRequestTokens([], {
+							systemPrompt: state.systemPrompt,
+							tools: state.tools,
+						});
+						const sceBudget = settingsManager.getSceBudgetTokens() ?? DEFAULT_SCE_BUDGET_TOKENS;
+						const floor = snapshotTokens + sceBudget;
+						if (override < floor) {
+							console.warn(
+								`[COE] budget ${override} below estimated floor ~${floor} ` +
+									`(system+tools ~${snapshotTokens} + SCE slice ≤${sceBudget}); requests will stay over budget`,
+							);
+						}
+					}
+				}
 				if (maxContextTokens <= 0) return withContext;
 				const result = optimizeMessagesForBudget(
 					withContext,
 					{ systemPrompt: state.systemPrompt, tools: state.tools },
-					{ maxContextTokens },
+					{ maxContextTokens, reservedTailMessages: resolveReservedTailMessages(maxContextTokens) },
 				);
 				if (process.env.ARCHE_COE_DEBUG) {
 					const acted = result.droppedMessages > 0 || result.truncatedToolResults > 0;

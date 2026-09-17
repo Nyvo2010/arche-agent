@@ -135,6 +135,16 @@ describe("createAgentSession SCE wiring", () => {
 		expect(scanned.docs.some((d) => d.path === "widget.ts")).toBe(true);
 	});
 
+	it("skips generated lockfiles and minified bundles at discovery", async () => {
+		writeFileSync(join(cwd, "package-lock.json"), `${"packages widget common\n".repeat(500)}`);
+		writeFileSync(join(cwd, "app.min.js"), `${"widget common\n".repeat(500)}`);
+		writeFileSync(join(cwd, "widget.ts"), "export const widget = 1;\n");
+		const scanned = await scanWorkspaceDocs(cwd, ["widget", "common"]);
+		expect(scanned.docs.some((d) => d.path === "package-lock.json")).toBe(false);
+		expect(scanned.docs.some((d) => d.path === "app.min.js")).toBe(false);
+		expect(scanned.docs.some((d) => d.path === "widget.ts")).toBe(true);
+	});
+
 	it("stays silent when the workspace is empty", async () => {
 		const model = getModel("openai", "gpt-4o-mini");
 		expect(model).toBeTruthy();

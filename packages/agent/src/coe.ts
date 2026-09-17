@@ -39,6 +39,16 @@ export const DEFAULT_TOOL_RESULT_CAP_TOKENS = 2000;
 /** Default number of trailing messages that are always kept. */
 export const DEFAULT_RESERVED_TAIL_MESSAGES = 2;
 
+/**
+ * Scale the reserved tail with the budget: ~1 message per 20k tokens,
+ * clamped to [2, 8]. Small budgets keep the minimum (every message counts
+ * toward the floor); large budgets keep more of the recent thread.
+ */
+export function resolveReservedTailMessages(maxContextTokens: number): number {
+	if (!Number.isFinite(maxContextTokens) || maxContextTokens <= 0) return DEFAULT_RESERVED_TAIL_MESSAGES;
+	return Math.min(8, Math.max(2, Math.floor(maxContextTokens / 20_000)));
+}
+
 const CHARS_PER_TOKEN = 4;
 
 /**
@@ -161,17 +171,23 @@ const STOPWORDS = new Set([
 /**
  * Split text into search terms (same recipe as the SCE query builder):
  * camelCase/snake_case/kebab-case split, lowercase, stopwords dropped, deduped.
+ * Split identifiers also emit their joined compound (`getUserName` → `get`,
+ * `user`, `name`, `getusername`): matching is substring-based, so the compound
+ * hits the literal identifier in code that the parts alone only approximate.
  */
 export function extractQueryTerms(text: string): string[] {
-	const spaced = text.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
-	const raw = spaced.split(/[^A-Za-z0-9]+/);
 	const terms: string[] = [];
 	const seen = new Set<string>();
-	for (const part of raw) {
-		const term = part.toLowerCase();
-		if (term.length < 2 || STOPWORDS.has(term) || seen.has(term)) continue;
+	const push = (term: string): void => {
+		if (term.length < 2 || STOPWORDS.has(term) || seen.has(term)) return;
 		seen.add(term);
 		terms.push(term);
+	};
+	for (const token of text.split(/[^A-Za-z0-9]+/)) {
+		if (token.length === 0) continue;
+		const parts = token.replace(/([a-z0-9])([A-Z])/g, "$1 $2").split(" ");
+		for (const part of parts) push(part.toLowerCase());
+		if (parts.length > 1) push(parts.join("").toLowerCase());
 	}
 	return terms;
 }
@@ -266,9 +282,16 @@ function collapseRepeatedLines(text: string): string[] {
 }
 
 /**
- * Query-aware extractive compression: keep lines matching the query terms
- * (in original order), fill leftover room head-first, and mark what was
- * omitted. Single-line blobs keep a char head+tail split.
+ * Failure signals win first: error/assert lines are what debugging turns need
+ * most, regardless of the current query terms.
+ */
+const ERROR_LINE = /error|fail|exception|assert|panic|traceback|expected|✗|×/i;
+
+/**
+ * Query-aware extractive compression: keep failure-signal lines first, then
+ * lines matching the query terms (in original order), fill leftover room
+ * head-first, and mark what was omitted. Single-line blobs keep a char
+ * head+tail split.
  */
 export function compressToolResultText(text: string, capTokens: number, terms: string[] = []): string {
 	const capChars = Math.max(1, Math.floor(capTokens * CHARS_PER_TOKEN));
@@ -299,6 +322,9 @@ export function compressToolResultText(text: string, capTokens: number, terms: s
 		used += Math.min(line.length, room) + 1;
 	};
 
+	for (let i = 0; i < lines.length; i++) {
+		if (ERROR_LINE.test(lines[i])) take(i);
+	}
 	for (let i = 0; i < lines.length; i++) {
 		if (matches(lines[i])) take(i);
 	}

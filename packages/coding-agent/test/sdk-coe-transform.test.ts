@@ -1,11 +1,11 @@
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { AgentMessage } from "@earendil-works/pi-agent-core";
 import { estimateRequestTokens, resolveMaxContextTokens } from "@earendil-works/pi-agent-core";
 import type { AssistantMessage, ToolResultMessage } from "@earendil-works/pi-ai";
 import { getModel } from "@earendil-works/pi-ai/compat";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createAgentSession } from "../src/core/sdk.ts";
 import { SessionManager } from "../src/core/session-manager.ts";
 
@@ -126,6 +126,31 @@ describe("createAgentSession COE wiring", () => {
 			}
 		} finally {
 			session.dispose();
+		}
+	});
+
+	it("warns on the first turn when the budget override sits below the floor", async () => {
+		const model = getModel("openai", "gpt-4o-mini");
+		expect(model).toBeTruthy();
+		writeFileSync(join(agentDir, "settings.json"), JSON.stringify({ context: { maxBudgetTokens: 100 } }));
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+		try {
+			const { session } = await createAgentSession({
+				cwd,
+				agentDir,
+				model: model!,
+				sessionManager: SessionManager.inMemory(cwd),
+			});
+			try {
+				expect(warn).not.toHaveBeenCalled();
+				await session.agent.transformContext!([{ role: "user", content: "hi", timestamp: Date.now() }]);
+				expect(warn).toHaveBeenCalledOnce();
+				expect(warn.mock.calls[0]?.[0]).toContain("[COE] budget 100 below estimated floor");
+			} finally {
+				session.dispose();
+			}
+		} finally {
+			warn.mockRestore();
 		}
 	});
 

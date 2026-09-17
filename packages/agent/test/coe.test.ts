@@ -10,6 +10,7 @@ import {
 	extractQueryTerms,
 	optimizeMessagesForBudget,
 	resolveMaxContextTokens,
+	resolveReservedTailMessages,
 } from "../src/coe.ts";
 import type { BashExecutionMessage } from "../src/harness/messages.ts";
 import type { AgentContext, AgentLoopConfig, AgentMessage } from "../src/types.ts";
@@ -123,15 +124,31 @@ describe("extractQueryTerms", () => {
 			"get",
 			"user",
 			"name",
+			"getusername",
 			"service",
 			"config",
 			"value",
 		]);
 	});
 
+	it("emits the joined compound for split identifiers", () => {
+		expect(extractQueryTerms("sceMaxFiles")).toEqual(["sce", "max", "files", "scemaxfiles"]);
+		expect(extractQueryTerms("widget")).toEqual(["widget"]);
+	});
+
 	it("returns [] for empty input", () => {
 		expect(extractQueryTerms("")).toEqual([]);
 		expect(extractQueryTerms("a the to")).toEqual([]);
+	});
+});
+
+describe("resolveReservedTailMessages", () => {
+	it("keeps the minimum on small budgets and scales up, capped at 8", () => {
+		expect(resolveReservedTailMessages(4000)).toBe(2);
+		expect(resolveReservedTailMessages(19_999)).toBe(2);
+		expect(resolveReservedTailMessages(91_700)).toBe(4);
+		expect(resolveReservedTailMessages(200_000)).toBe(8);
+		expect(resolveReservedTailMessages(0)).toBe(2);
 	});
 });
 
@@ -143,6 +160,14 @@ describe("compressToolResultText", () => {
 		expect(out).toContain("ERROR connection refused databaseTimeout");
 		expect(out).toContain("compressed by COE");
 		expect(out.length).toBeLessThan(text.length);
+	});
+
+	it("keeps failure-signal lines even without query terms", () => {
+		const filler = Array.from({ length: 60 }, (_, i) => `filler line ${i} ${"z".repeat(40)}`).join("\n");
+		const text = `${filler}\nAssertionError: expected 200 but got 500\n${filler}`;
+		const out = compressToolResultText(text, 200, []);
+		expect(out).toContain("AssertionError: expected 200 but got 500");
+		expect(out).toContain("compressed by COE");
 	});
 
 	it("falls back to head-first fill when nothing matches", () => {

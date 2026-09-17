@@ -26,6 +26,29 @@ const SKIP_DIRS = new Set([
 	"venv",
 ]);
 
+/**
+ * Generated files that drown relevance with sheer term-hit volume
+ * (lockfiles, minified bundles). Skipped at discovery: reading them costs
+ * I/O and their counts bury real matches in the candidate cut.
+ */
+const SKIP_GENERATED_BASENAMES = new Set([
+	"package-lock.json",
+	"npm-shrinkwrap.json",
+	"yarn.lock",
+	"pnpm-lock.yaml",
+	"bun.lockb",
+	"composer.lock",
+	"Cargo.lock",
+	"Gemfile.lock",
+	"poetry.lock",
+]);
+
+/** Minified bundles: huge single lines, no excerpt value. */
+function isGeneratedFile(baseName: string): boolean {
+	if (SKIP_GENERATED_BASENAMES.has(baseName)) return true;
+	return baseName.endsWith(".min.js") || baseName.endsWith(".min.css") || baseName.endsWith(".bundle.js");
+}
+
 /** Never index secrets into LLM context (unless the user explicitly lists the file). */
 function isSensitiveFile(baseName: string): boolean {
 	if (baseName === ".env" || baseName.startsWith(".env.")) return true;
@@ -184,7 +207,7 @@ async function collectFilePaths(root: string, rules: IgnoreRule[]): Promise<stri
 				continue;
 			}
 			if (!entry.isFile()) continue;
-			if (isSensitiveFile(entry.name)) continue;
+			if (isSensitiveFile(entry.name) || isGeneratedFile(entry.name)) continue;
 			const rel = toPosix(relative(root, abs));
 			if (ignoredBy(rel, rules)) continue;
 			paths.push(rel);
