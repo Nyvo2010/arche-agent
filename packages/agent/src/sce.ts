@@ -37,8 +37,14 @@ export const DEFAULT_SCE_TTL_MS = 30_000;
 const CHARS_PER_TOKEN = 4;
 /** Long source lines are clipped so one line cannot eat the budget. */
 const MAX_SNIPPET_LINE_CHARS = 240;
-/** Semantic scorer only reads this many chars per file (speed cap). */
-const SEMANTIC_MAX_CHARS_PER_FILE = 20_000;
+/**
+ * Semantic scorer only reads this many chars per file (speed cap).
+ * Measured on a 60-doc scan: 20k chars ≈ 255ms/turn, 10k ≈ half that.
+ * Head content carries the ranking signal; the cap keeps the opt-in
+ * scorer near interactive latency without a prefilter (which would cut
+ * the zero-term-overlap files semantic mode exists to rescue).
+ */
+const SEMANTIC_MAX_CHARS_PER_FILE = 10_000;
 
 /** One workspace file with its query-matching lines (1-indexed). */
 export interface SceFileDoc {
@@ -196,16 +202,22 @@ export function rankSceDocs(docs: SceFileDoc[], terms: string[], query: string, 
 		.map((entry) => entry.i);
 }
 
-/** Build the slice text for ranked docs inside the char budget. */
+/**
+ * Build the slice text for ranked docs inside the char budget.
+ * Rank-weighted shares: the top file gets double room, the rest split the
+ * remainder equally (256-char floor each). The best match deserves the
+ * most excerpt space; equal splits starve it when the budget is tight.
+ */
 export function buildSceSliceText(ranked: SceFileDoc[], budgetTokens: number): { text: string; files: string[] } {
 	const budgetChars = Math.max(1, Math.floor(budgetTokens * CHARS_PER_TOKEN));
-	const perFileChars = Math.max(256, Math.ceil(budgetChars / Math.max(1, ranked.length)));
+	const totalShares = ranked.length + 1;
 	const out: string[] = [SCE_SLICE_MARKER];
 	const files: string[] = [];
 	let used = 0;
-	for (const doc of ranked) {
+	for (const [index, doc] of ranked.entries()) {
 		if (used >= budgetChars) break;
-		const room = Math.min(perFileChars, budgetChars - used);
+		const share = Math.max(256, Math.floor((budgetChars * (index === 0 ? 2 : 1)) / totalShares));
+		const room = Math.min(share, budgetChars - used);
 		const picked = pickSnippetLines(doc);
 		if (picked.length === 0) continue;
 		const head = `<file: ${doc.path}>`;
@@ -382,7 +394,8 @@ export async function applySceSlice(messages: AgentMessage[], args: SceRunArgs):
 			`[SCE] +${files.length} files (${name}${scanned.fallback ? ", fallback" : ""}, ~${estimateTokens(message)} tokens, query: ${terms.slice(0, 8).join(",")}, files: ${files.join(",")})`,
 		);
 		return { messages: [message, ...messages], queryTerms: terms, files, cached: false, fallback: scanned.fallback };
-	} catch {
+	} catch (error) {
+		args.debug?.(`[SCE] skip: error (${error instanceof Error ? error.message : String(error)})`);
 		return passthrough();
 	}
 }

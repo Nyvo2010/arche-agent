@@ -194,6 +194,19 @@ describe("buildSceSliceText", () => {
 		expect(text).toContain("src/big.ts:");
 	});
 
+	it("gives the top-ranked file more room than the rest", () => {
+		const doc = (path: string): SceFileDoc => ({
+			path,
+			lines: Array.from({ length: 40 }, (_, i) => `content line ${i} padded xxxx`),
+			matchedLines: Array.from({ length: 40 }, (_, i) => i + 1),
+		});
+		const { text } = buildSceSliceText([doc("src/first.ts"), doc("src/second.ts")], 200);
+		const firstRows = text.split("\n").filter((l) => l.startsWith("src/first.ts:")).length;
+		const secondRows = text.split("\n").filter((l) => l.startsWith("src/second.ts:")).length;
+		expect(firstRows).toBeGreaterThan(secondRows);
+		expect(secondRows).toBeGreaterThan(0);
+	});
+
 	it("emits head lines for fallback docs", () => {
 		const { text } = buildSceSliceText(
 			[{ path: "index.ts", lines: ["export * from './app';"], matchedLines: [] }],

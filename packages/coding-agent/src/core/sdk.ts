@@ -438,7 +438,11 @@ export async function createAgentSession(options: CreateAgentSessionOptions = {}
 				const result = optimizeMessagesForBudget(
 					withContext,
 					{ systemPrompt: state.systemPrompt, tools: state.tools },
-					{ maxContextTokens, reservedTailMessages: resolveReservedTailMessages(maxContextTokens) },
+					{
+						maxContextTokens,
+						toolResultCapTokens: settingsManager.getToolResultCapTokens(),
+						reservedTailMessages: resolveReservedTailMessages(maxContextTokens),
+					},
 				);
 				if (process.env.ARCHE_COE_DEBUG) {
 					const acted = result.droppedMessages > 0 || result.truncatedToolResults > 0;

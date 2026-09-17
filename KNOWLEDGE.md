@@ -346,4 +346,5 @@ query-named files survive the candidate cut (`filenameStem` priority in
 (`packages/agent/src/sce.ts`, pinned by `sce.test.ts` + `sdk-sce-transform.test.ts`).
 - Settings knobs:
   `context.maxBudgetTokens` → COE budget override (unset = 70% model window)
+  `context.toolResultCap` → COE per-tool-result compression cap (unset = 2000 tokens)
   `context.sceMaxFiles` / `context.sceBudgetTokens` / `context.sceImportantFiles` / `context.enableSemantic` → SCE.

@@ -66,6 +66,7 @@ export interface ImageSettings {
 
 export interface ContextSettings {
 	maxBudgetTokens?: number; // Absolute per-request token budget for COE (default: unset = 70% of model window)
+	toolResultCap?: number; // Per-tool-result cap in tokens for COE compression (default: 2000)
 	sceMaxFiles?: number; // Max files in the SCE workspace slice (default: 6)
 	sceBudgetTokens?: number; // Shared token budget for the SCE slice (default: 2000)
 	sceImportantFiles?: string[]; // Extra entry files for the SCE fallback path
@@ -1324,6 +1325,12 @@ export class SettingsManager {
 	/** Absolute COE per-request budget override. Undefined = 70% of the model window. */
 	getCoeBudgetTokens(): number | undefined {
 		const value = this.settings.context?.maxBudgetTokens;
+		return typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.floor(value) : undefined;
+	}
+
+	/** Per-tool-result cap for COE compression. Undefined = engine default. */
+	getToolResultCapTokens(): number | undefined {
+		const value = this.settings.context?.toolResultCap;
 		return typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.floor(value) : undefined;
 	}
 

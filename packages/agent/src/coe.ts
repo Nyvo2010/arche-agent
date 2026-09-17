@@ -547,7 +547,7 @@ export function createCoeTransform(
 			const result = optimizeMessagesForBudget(messages, snapshot, {
 				maxContextTokens,
 				toolResultCapTokens: args.toolResultCapTokens,
-				reservedTailMessages: args.reservedTailMessages,
+				reservedTailMessages: args.reservedTailMessages ?? resolveReservedTailMessages(maxContextTokens),
 			});
 			return result.messages;
 		} catch {
